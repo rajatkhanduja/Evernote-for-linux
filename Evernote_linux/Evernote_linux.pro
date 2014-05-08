@@ -65,3 +65,5 @@ FORMS    += mainwindow.ui
 
 OTHER_FILES += \
     o2/src.pri
+
+unix:!macx: LIBS += -lthrift
