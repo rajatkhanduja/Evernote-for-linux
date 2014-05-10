@@ -61,7 +61,8 @@ HEADERS  += mainwindow.h \
     o2/o2.h \
     o2/o1requestor.h \
     o2/o1.h \
-    EvernoteAuthenticator.h
+    EvernoteAuthenticator.h \
+    evernote/ClientFactory.h
 
 FORMS    += mainwindow.ui
 

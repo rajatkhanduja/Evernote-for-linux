@@ -7,6 +7,11 @@
 #include "EvernoteAuthenticator.h"
 #include <QWebView>
 #include <QWebFrame>
+#include "evernote/UserStore.h"
+#include "thrift/protocol/TProtocol.h"
+#include "evernote/UserStore.h"
+#include "evernote/UserStore_types.h"
+#include "evernote/ClientFactory.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +36,17 @@ public Q_SLOTS:
 
     void onLinkingSucceeded(){
         std::cerr << "Done\n";
+        if (evernoteAuthenticator->linked()) {
+            try{
+                UserStoreClient userStoreClient = ClientFactory::createClient();
+                std::string noteStoreUrl;
+                userStoreClient.getNoteStoreUrl(noteStoreUrl, evernoteAuthenticator->token().toStdString());
+                std::cerr << noteStoreUrl;
+            }
+            catch(evernote::edam::EDAMUserException e){
+                std::cerr << e.parameter << " " << e.errorCode << std::endl;
+            }
+        }
     }
 
     void onOpenBrowser(QUrl url){

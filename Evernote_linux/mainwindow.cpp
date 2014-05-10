@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "evernote/NoteStore.h"
 #include <QWebView>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -18,8 +17,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(evernoteAuthenticator, SIGNAL(openBrowser(QUrl)), this, SLOT(onOpenBrowser(QUrl)));
     connect(evernoteAuthenticator, SIGNAL(closeBrowser()), view, SLOT(close()));
 
+//    evernoteAuthenticator->unlink();
     evernoteAuthenticator->link();
-
     //ui->setupUi(this);
 }
 
