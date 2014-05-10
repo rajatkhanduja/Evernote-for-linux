@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     o2/o2.cpp \
     o2/o1requestor.cpp \
     o2/o1.cpp \
-    EvernoteAuthenticator.cpp
+    EvernoteAuthenticator.cpp \
+    EvernoteClient.cpp
 
 HEADERS  += mainwindow.h \
     evernote/UserStore_types.h \
@@ -62,7 +63,8 @@ HEADERS  += mainwindow.h \
     o2/o1requestor.h \
     o2/o1.h \
     EvernoteAuthenticator.h \
-    evernote/ClientFactory.h
+    evernote/ClientFactory.h \
+    EvernoteClient.h
 
 FORMS    += mainwindow.ui
 
