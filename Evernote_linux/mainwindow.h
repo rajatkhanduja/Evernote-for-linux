@@ -23,6 +23,8 @@ public Q_SLOTS:
     void updateTags();
     void signOut();
 
+    void onSidebarElementClicked(QModelIndex index);
+
 private:
     Ui::MainWindow *ui;
     EvernoteClient *evernoteClient;

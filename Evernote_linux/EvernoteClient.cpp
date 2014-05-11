@@ -124,12 +124,26 @@ std::string EvernoteClient::authenticationToken() const{
 
 std::vector<evernote::edam::NoteMetadata> EvernoteClient::listAllNotesInNotebook(const evernote::edam::Guid &guid) {
     evernote::edam::NoteFilter noteFilter;
-    //noteFilter.order        = evernote::edam::NoteSortOrder.CREATED;
+    noteFilter.order        = evernote::edam::NoteSortOrder::CREATED;
     noteFilter.notebookGuid = guid;
     noteFilter.ascending    = false;
 
     evernote::edam::NotesMetadataResultSpec resultSpec;
     resultSpec.includeTitle = resultSpec.includeCreated = resultSpec.includeNotebookGuid = resultSpec.includeTagGuids = true;
+
+    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(noteFilter, 0, 10000, resultSpec);
+    return notesMetadataList.notes;
+}
+
+std::vector<evernote::edam::NoteMetadata> EvernoteClient::listAllNotesWithTag(const evernote::edam::Guid &guid) {
+    evernote::edam::NoteFilter noteFilter;
+    noteFilter.order        = evernote::edam::NoteSortOrder::CREATED;
+    noteFilter.tagGuids     = std::vector<evernote::edam::Guid>(1, guid);
+    noteFilter.ascending    = false;
+
+    evernote::edam::NotesMetadataResultSpec resultSpec;
+    resultSpec.includeTitle = resultSpec.includeCreated = resultSpec.includeNotebookGuid = resultSpec.includeTagGuids = true;
+    std::cerr << resultSpec.includeTitle << " : tested\n";
 
     evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(noteFilter, 0, 10000, resultSpec);
     return notesMetadataList.notes;

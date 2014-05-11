@@ -16,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebarTreeModel = new SidebarTreeModel();
     ui->sidebar->setModel(sidebarTreeModel);
 
-    evernoteClient = new EvernoteClient("CONSUMER_KEY", "CONSUMER_SECRET");
+    connect(ui->sidebar, SIGNAL(clicked(QModelIndex)), this, SLOT(onSidebarElementClicked(QModelIndex)));
+
     connect(evernoteClient, SIGNAL(linkingSucceeded()), this, SLOT(updateNotebooks()));
     connect(evernoteClient, SIGNAL(linkingSucceeded()), this, SLOT(updateTags()));
     evernoteClient->link();
@@ -53,4 +54,26 @@ void MainWindow::updateTags(){
 
 void MainWindow::signOut(){
     evernoteClient->unLink();
+}
+
+void MainWindow::onSidebarElementClicked(QModelIndex index){
+    EvernoteItem *data = dynamic_cast<EvernoteItem*>((dynamic_cast<QStandardItemModel*>(ui->sidebar->model()))->itemFromIndex(index));
+
+    if (data == NULL){
+        // Test to handle dynamic_cast's failure
+        // Happens when a normal QStandardItem is clicked.
+        return;
+    }
+
+    std::vector<evernote::edam::NoteMetadata> notes;
+    if (data->getItemType() == EvernoteItem::ItemType::Tag){
+        notes = evernoteClient->listAllNotesWithTag(data->getGuid());
+    }
+    else{
+        notes = evernoteClient->listAllNotesInNotebook(data->getGuid());
+    }
+
+    for(int i = 0; i < notes.size(); i++){
+        std::cerr << notes[i].title << " " << notes[i].guid << " ; " << notes[i].created <<  std::endl;
+    }
 }

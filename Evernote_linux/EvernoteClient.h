@@ -28,6 +28,7 @@ public:
     std::vector<evernote::edam::Tag> listTags();
     evernote::edam::Notebook getNotebook(const evernote::edam::Guid& guid);
     std::vector<evernote::edam::NoteMetadata> listAllNotesInNotebook(const evernote::edam::Guid& guid);
+    std::vector<evernote::edam::NoteMetadata> listAllNotesWithTag(const evernote::edam::Guid& guid);
     evernote::edam::Notebook getDefaultNotebook();
     evernote::edam::NotesMetadataList listNotesByFilter(const evernote::edam::NoteFilter& filter, const int& offset,
                                                         const int& max, const evernote::edam::NotesMetadataResultSpec& resultSpec);
