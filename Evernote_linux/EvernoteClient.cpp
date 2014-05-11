@@ -3,38 +3,56 @@
 #include <thrift/transport/THttpClient.h>
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <boost/shared_ptr.hpp>
+#include <vector>
 
 using apache::thrift::transport::THttpClient;
 using apache::thrift::protocol::TProtocol;
 using apache::thrift::protocol::TBinaryProtocol;
 
-EvernoteClient::EvernoteClient(const QString& customerKey, const QString& customerSecret, bool sandbox, QObject *parent) : QObject(parent){
-    this->sandbox = sandbox;
-    evernoteAuthenticator = new EvernoteAuthenticator(getHost(), customerKey, customerSecret);
-    std::cerr << evernoteAuthenticator->linked() << std::endl;
+void EvernoteClient::link()
+{
     view = new QWebView();
     connect(evernoteAuthenticator, SIGNAL(openBrowser(QUrl)), this, SLOT(onOpenBrowser(QUrl)));
     connect(evernoteAuthenticator, SIGNAL(closeBrowser()), this, SLOT(onCloseBrowser()));
+    connect(evernoteAuthenticator, SIGNAL(linkingSucceeded()), this, SLOT(onLinkingSucceeded()));
+    evernoteAuthenticator->link();
+}
+
+void EvernoteClient::unLink(){
+    evernoteAuthenticator->unlink();
+}
+
+EvernoteClient::EvernoteClient(const QString& customerKey, const QString& customerSecret, bool sandbox, QObject *parent) : QObject(parent){
+    this->sandbox = sandbox;
+    evernoteAuthenticator = new EvernoteAuthenticator(getHostWithProtocol(), customerKey, customerSecret);
 
     userStoreClient = NULL;
     noteStoreClient = NULL;
+}
 
-    evernoteAuthenticator->link();
+QString EvernoteClient::getHostWithProtocol() const{
+    return "https://" + getHost();
 }
 
 QString EvernoteClient::getHost() const{
     if(sandbox){
-        return "https://sandbox.evernote.com";
+        return "sandbox.evernote.com";
     }
     else{
-        return "https://www.evernote.com";
+        return "www.evernote.com";
     }
 }
 
 void EvernoteClient::onLinkingSucceeded(){
+    if (!evernoteAuthenticator->linked()) return;
+
+    delete view;
+
     std::cerr << "Done\n";
+    std::cerr << (userStoreClient == NULL) << std::endl;
 
     initializeStoreClients();
+    std::cerr << "Emitting!";
 
     emit linkingSucceeded();
 }
@@ -64,17 +82,55 @@ void EvernoteClient::initializeStoreClients(){
     userStoreClient = new evernote::edam::UserStoreClient(getProtoObject(getHost().toStdString(), 80, "/edam/user"));
 
     std::string noteStoreUrlStr;
-    userStoreClient->getNoteStoreUrl(noteStoreUrlStr, evernoteAuthenticator->token().toStdString());
+    userStoreClient->getNoteStoreUrl(noteStoreUrlStr, authenticationToken());
     QUrl noteStoreUrl( (QString(noteStoreUrlStr.c_str())) );
     std::string noteStoreUrlHost = noteStoreUrl.host().toStdString();
     std::string noteStoreUrlPath = noteStoreUrl.path().toStdString();
     noteStoreClient = new evernote::edam::NoteStoreClient(getProtoObject(noteStoreUrlHost, 80, noteStoreUrlPath));
 }
 
-evernote::edam::NoteStoreClient* EvernoteClient::getNoteStoreClient(){
-    return noteStoreClient;
+std::vector<evernote::edam::Notebook> EvernoteClient::listNotebooks(){
+    std::vector<evernote::edam::Notebook> notebooks;
+    noteStoreClient->listNotebooks(notebooks, authenticationToken());
+    return notebooks;
 }
 
-evernote::edam::UserStoreClient* EvernoteClient::getUserStoreClient(){
-    return userStoreClient;
+std::vector<evernote::edam::Tag> EvernoteClient::listTags(){
+    std::vector<evernote::edam::Tag> tags;
+    noteStoreClient->listTags(tags, authenticationToken());
+    return tags;
+}
+
+evernote::edam::Notebook EvernoteClient::getDefaultNotebook(){
+    evernote::edam::Notebook notebook;
+    noteStoreClient->getDefaultNotebook(notebook, authenticationToken());
+}
+
+evernote::edam::NotesMetadataList EvernoteClient::listNotesByFilter(const evernote::edam::NoteFilter &filter, const int &offset, const int &max, const evernote::edam::NotesMetadataResultSpec &resultSpec){
+    evernote::edam::NotesMetadataList notesMedadataList;
+    noteStoreClient->findNotesMetadata(notesMedadataList, authenticationToken(), filter, offset, max, resultSpec);
+    return notesMedadataList;
+}
+
+evernote::edam::Notebook EvernoteClient::getNotebook(const evernote::edam::Guid& guid){
+    evernote::edam::Notebook notebook;
+    noteStoreClient->getNotebook(notebook, authenticationToken(), guid);
+    return notebook;
+}
+
+std::string EvernoteClient::authenticationToken() const{
+    return evernoteAuthenticator->token().toStdString();
+}
+
+std::vector<evernote::edam::NoteMetadata> EvernoteClient::listAllNotesInNotebook(const evernote::edam::Guid &guid) {
+    evernote::edam::NoteFilter noteFilter;
+    //noteFilter.order        = evernote::edam::NoteSortOrder.CREATED;
+    noteFilter.notebookGuid = guid;
+    noteFilter.ascending    = false;
+
+    evernote::edam::NotesMetadataResultSpec resultSpec;
+    resultSpec.includeTitle = resultSpec.includeCreated = resultSpec.includeNotebookGuid = resultSpec.includeTagGuids = true;
+
+    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(noteFilter, 0, 10000, resultSpec);
+    return notesMetadataList.notes;
 }

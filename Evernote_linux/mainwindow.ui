@@ -30,6 +30,9 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetNoConstraint</enum>
+     </property>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
@@ -40,6 +43,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <attribute name="headerVisible">
+          <bool>false</bool>
+         </attribute>
         </widget>
        </item>
        <item>
@@ -66,8 +72,6 @@
      </item>
     </layout>
    </widget>
-   <zorder>verticalLayoutWidget</zorder>
-   <zorder>pushButton</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -78,6 +82,39 @@
      <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionNew_Note"/>
+    <addaction name="actionNew_Notebook"/>
+    <addaction name="actionNew_tag"/>
+    <addaction name="separator"/>
+    <addaction name="actionSign_out"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelete_all"/>
+    <addaction name="actionSelect_all"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionSync"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuTools"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -88,6 +125,66 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionNew_Note">
+   <property name="text">
+    <string>New Note</string>
+   </property>
+  </action>
+  <action name="actionNew_Notebook">
+   <property name="text">
+    <string>New Notebook</string>
+   </property>
+  </action>
+  <action name="actionNew_tag">
+   <property name="text">
+    <string>New tag</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
+   </property>
+  </action>
+  <action name="actionCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionDelete_all">
+   <property name="text">
+    <string>Delete all</string>
+   </property>
+  </action>
+  <action name="actionSelect_all">
+   <property name="text">
+    <string>Select all</string>
+   </property>
+  </action>
+  <action name="actionSync">
+   <property name="text">
+    <string>Sync</string>
+   </property>
+  </action>
+  <action name="actionSign_out">
+   <property name="text">
+    <string>Sign out</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>

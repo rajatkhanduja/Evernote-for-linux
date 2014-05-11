@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QUrl>
 #include <EvernoteClient.h>
+#include <SidebarTreeModel.h>
 
 namespace Ui {
 class MainWindow;
@@ -20,10 +21,12 @@ public:
 public Q_SLOTS:
     void updateNotebooks();
     void updateTags();
+    void signOut();
 
 private:
     Ui::MainWindow *ui;
     EvernoteClient *evernoteClient;
+    SidebarTreeModel *sidebarTreeModel;
 };
 
 #endif // MAINWINDOW_H

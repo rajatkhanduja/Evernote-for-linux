@@ -18,9 +18,19 @@ class EvernoteClient : public QObject
 
 public:
     explicit EvernoteClient(const QString& customerKey, const QString& customerSecret, bool sandbox = true, QObject *parent = 0);
-    evernote::edam::NoteStoreClient* getNoteStoreClient();
-    evernote::edam::UserStoreClient* getUserStoreClient();
     ~EvernoteClient(){}
+
+    void link();
+    void unLink();
+
+    // Methods to get notes and notebooks.
+    std::vector<evernote::edam::Notebook> listNotebooks();
+    std::vector<evernote::edam::Tag> listTags();
+    evernote::edam::Notebook getNotebook(const evernote::edam::Guid& guid);
+    std::vector<evernote::edam::NoteMetadata> listAllNotesInNotebook(const evernote::edam::Guid& guid);
+    evernote::edam::Notebook getDefaultNotebook();
+    evernote::edam::NotesMetadataList listNotesByFilter(const evernote::edam::NoteFilter& filter, const int& offset,
+                                                        const int& max, const evernote::edam::NotesMetadataResultSpec& resultSpec);
 
 Q_SIGNALS:
     void linkingSucceeded();
@@ -33,6 +43,8 @@ public Q_SLOTS:
 
 protected:
     QString getHost() const;
+    QString getHostWithProtocol() const;
+    std::string authenticationToken() const;
     void initializeStoreClients();
 
 private:
