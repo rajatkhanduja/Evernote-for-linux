@@ -38,7 +38,9 @@ SOURCES += main.cpp\
     EvernoteAuthenticator.cpp \
     EvernoteClient.cpp \
     SidebarTreeModel.cpp \
-    EvernoteItem.cpp
+    EvernoteItem.cpp \
+    NotesMetadataResultSpecBuilder.cpp \
+    NoteFilterBuilder.cpp
 
 HEADERS  += mainwindow.h \
     evernote/UserStore_types.h \
@@ -67,7 +69,9 @@ HEADERS  += mainwindow.h \
     EvernoteAuthenticator.h \
     EvernoteClient.h \
     SidebarTreeModel.h \
-    EvernoteItem.h
+    EvernoteItem.h \
+    NoteFilterBuilder.h \
+    NotesMetadataResultSpecBuilder.h
 
 FORMS    += mainwindow.ui
 

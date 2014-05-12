@@ -4,6 +4,8 @@
 #include <thrift/protocol/TBinaryProtocol.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <NoteFilterBuilder.h>
+#include <NotesMetadataResultSpecBuilder.h>
 
 using apache::thrift::transport::THttpClient;
 using apache::thrift::protocol::TProtocol;
@@ -107,9 +109,9 @@ evernote::edam::Notebook EvernoteClient::getDefaultNotebook(){
 }
 
 evernote::edam::NotesMetadataList EvernoteClient::listNotesByFilter(const evernote::edam::NoteFilter &filter, const int &offset, const int &max, const evernote::edam::NotesMetadataResultSpec &resultSpec){
-    evernote::edam::NotesMetadataList notesMedadataList;
-    noteStoreClient->findNotesMetadata(notesMedadataList, authenticationToken(), filter, offset, max, resultSpec);
-    return notesMedadataList;
+    evernote::edam::NotesMetadataList notesMetadataList;
+    noteStoreClient->findNotesMetadata(notesMetadataList, authenticationToken(), filter, offset, max, resultSpec);
+    return notesMetadataList;
 }
 
 evernote::edam::Notebook EvernoteClient::getNotebook(const evernote::edam::Guid& guid){
@@ -123,28 +125,32 @@ std::string EvernoteClient::authenticationToken() const{
 }
 
 std::vector<evernote::edam::NoteMetadata> EvernoteClient::listAllNotesInNotebook(const evernote::edam::Guid &guid) {
-    evernote::edam::NoteFilter noteFilter;
-    noteFilter.order        = evernote::edam::NoteSortOrder::CREATED;
-    noteFilter.notebookGuid = guid;
-    noteFilter.ascending    = false;
+    evernote::edam::NoteFilter *noteFilter
+            = (new NoteFilterBuilder())->noteBookGuid(guid)->order(evernote::edam::NoteSortOrder::CREATED)->ascending(false)->build();
+    evernote::edam::NotesMetadataResultSpec *resultSpec =
+            (new NotesMetadataResultSpecBuilder())->title()->created()->notebookGuid()->tagGuids()->build();
 
-    evernote::edam::NotesMetadataResultSpec resultSpec;
-    resultSpec.includeTitle = resultSpec.includeCreated = resultSpec.includeNotebookGuid = resultSpec.includeTagGuids = true;
+    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(*noteFilter, 0, 10000, *resultSpec);
 
-    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(noteFilter, 0, 10000, resultSpec);
+    delete noteFilter;
+    delete resultSpec;
+
     return notesMetadataList.notes;
 }
 
 std::vector<evernote::edam::NoteMetadata> EvernoteClient::listAllNotesWithTag(const evernote::edam::Guid &guid) {
-    evernote::edam::NoteFilter noteFilter;
-    noteFilter.order        = evernote::edam::NoteSortOrder::CREATED;
-    noteFilter.tagGuids     = std::vector<evernote::edam::Guid>(1, guid);
-    noteFilter.ascending    = false;
 
-    evernote::edam::NotesMetadataResultSpec resultSpec;
-    resultSpec.includeTitle = resultSpec.includeCreated = resultSpec.includeNotebookGuid = resultSpec.includeTagGuids = true;
-    std::cerr << resultSpec.includeTitle << " : tested\n";
+    std::vector<evernote::edam::Guid> tagGuids(1, guid);
+    evernote::edam::NoteFilter *noteFilter =
+            (new NoteFilterBuilder())->tagGuids(tagGuids)->order(evernote::edam::NoteSortOrder::CREATED)->ascending(false)->build();
 
-    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(noteFilter, 0, 10000, resultSpec);
+    evernote::edam::NotesMetadataResultSpec *resultSpec =
+            (new NotesMetadataResultSpecBuilder())->title()->created()->notebookGuid()->tagGuids()->build();
+
+    evernote::edam::NotesMetadataList notesMetadataList = listNotesByFilter(*noteFilter, 0, 10000, *resultSpec);
+
+    delete noteFilter;
+    delete resultSpec;
+
     return notesMetadataList.notes;
 }
