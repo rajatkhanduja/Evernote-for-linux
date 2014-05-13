@@ -29,6 +29,7 @@ private:
     Ui::MainWindow *ui;
     EvernoteClient *evernoteClient;
     SidebarTreeModel *sidebarTreeModel;
+    QStandardItemModel *notesListModel;
 };
 
 #endif // MAINWINDOW_H

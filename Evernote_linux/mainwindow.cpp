@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebarTreeModel = new SidebarTreeModel();
     ui->sidebar->setModel(sidebarTreeModel);
 
+    notesListModel = new QStandardItemModel();
+    QStandardItem *root = notesListModel->invisibleRootItem();
+
     connect(ui->sidebar, SIGNAL(clicked(QModelIndex)), this, SLOT(onSidebarElementClicked(QModelIndex)));
 
     connect(evernoteClient, SIGNAL(linkingSucceeded()), this, SLOT(updateNotebooks()));
@@ -73,7 +76,10 @@ void MainWindow::onSidebarElementClicked(QModelIndex index){
         notes = evernoteClient->listAllNotesInNotebook(data->getGuid());
     }
 
+
+    notesListModel->removeRows(0, notesListModel->rowCount());
     for(int i = 0; i < notes.size(); i++){
-        std::cerr << notes[i].title << " " << notes[i].guid << " ; " << notes[i].created <<  std::endl;
+        notesListModel->appendRow(new EvernoteItem(notes[i].title.c_str(), notes[i].guid, EvernoteItem::ItemType::Note));
     }
+    ui->noteList->setModel(notesListModel);
 }
