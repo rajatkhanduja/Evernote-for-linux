@@ -32,6 +32,7 @@ public:
     evernote::edam::Notebook getDefaultNotebook();
     evernote::edam::NotesMetadataList listNotesByFilter(const evernote::edam::NoteFilter& filter, const int& offset,
                                                         const int& max, const evernote::edam::NotesMetadataResultSpec& resultSpec);
+    evernote::edam::Note getNote(const evernote::edam::Guid& guid);
 
 Q_SIGNALS:
     void linkingSucceeded();

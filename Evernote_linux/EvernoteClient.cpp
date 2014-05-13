@@ -114,6 +114,12 @@ evernote::edam::NotesMetadataList EvernoteClient::listNotesByFilter(const everno
     return notesMetadataList;
 }
 
+evernote::edam::Note EvernoteClient::getNote(const evernote::edam::Guid &guid) {
+    evernote::edam::Note note;
+    noteStoreClient->getNote(note, authenticationToken(), guid, true, true, true, true);
+    return note;
+}
+
 evernote::edam::Notebook EvernoteClient::getNotebook(const evernote::edam::Guid& guid){
     evernote::edam::Notebook notebook;
     noteStoreClient->getNotebook(notebook, authenticationToken(), guid);

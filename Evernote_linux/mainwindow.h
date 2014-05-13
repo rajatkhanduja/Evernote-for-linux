@@ -24,6 +24,7 @@ public Q_SLOTS:
     void signOut();
 
     void onSidebarElementClicked(QModelIndex index);
+    void onNoteListElementClicked(QModelIndex index);
 
 private:
     Ui::MainWindow *ui;

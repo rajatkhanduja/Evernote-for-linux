@@ -16,10 +16,12 @@ MainWindow::MainWindow(QWidget *parent) :
     sidebarTreeModel = new SidebarTreeModel();
     ui->sidebar->setModel(sidebarTreeModel);
 
+    connect(ui->sidebar, SIGNAL(clicked(QModelIndex)), this, SLOT(onSidebarElementClicked(QModelIndex)));
+
     notesListModel = new QStandardItemModel();
     QStandardItem *root = notesListModel->invisibleRootItem();
 
-    connect(ui->sidebar, SIGNAL(clicked(QModelIndex)), this, SLOT(onSidebarElementClicked(QModelIndex)));
+    connect(ui->noteList, SIGNAL(clicked(QModelIndex)), this, SLOT(onNoteListElementClicked(QModelIndex)));
 
     connect(evernoteClient, SIGNAL(linkingSucceeded()), this, SLOT(updateNotebooks()));
     connect(evernoteClient, SIGNAL(linkingSucceeded()), this, SLOT(updateTags()));
@@ -82,4 +84,21 @@ void MainWindow::onSidebarElementClicked(QModelIndex index){
         notesListModel->appendRow(new EvernoteItem(notes[i].title.c_str(), notes[i].guid, EvernoteItem::ItemType::Note));
     }
     ui->noteList->setModel(notesListModel);
+}
+
+void MainWindow::onNoteListElementClicked(QModelIndex index) {
+    EvernoteItem *data = dynamic_cast<EvernoteItem*>(dynamic_cast<QStandardItemModel*>(ui->noteList->model())->itemFromIndex(index));
+
+    if (data == NULL){
+        // Dynamic cast failed.
+        return;
+    }
+
+    evernote::edam::Note note = evernoteClient->getNote(data->getGuid());
+    std::cerr << note.title << std::endl;
+    std::cerr << note.content << std::endl;
+    ui->noteEditor->setText(note.content.c_str());
+    std::cerr << "----" << std::endl;
+    std::cerr << (ui->noteEditor->toHtml().toStdString()) << std::endl;
+    std::cerr << (ui->noteEditor->toHtml().toStdString() == note.content) << std::endl;
 }
